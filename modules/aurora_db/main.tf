@@ -78,7 +78,7 @@ resource "aws_route_table" "public" {
 
 resource "aws_route_table_association" "public_a" {
   subnet_id      = aws_subnet.private_a.id
-  route_table_id = aws_route_table.public.id # Associating private subnets with public route table for simplicity (NAT Gateway is better for true private)
+  route_table_id = aws_route_table.public.id
 }
 
 resource "aws_route_table_association" "public_b" {
@@ -100,7 +100,7 @@ resource "aws_security_group" "aurora" {
     from_port   = var.db_port
     to_port     = var.db_port
     protocol    = "tcp"
-    cidr_blocks = var.allowed_inbound_cidrs # Define this variable
+    cidr_blocks = var.allowed_inbound_cidrs
   }
 
   egress {
@@ -119,7 +119,7 @@ resource "aws_security_group" "aurora" {
 
 resource "aws_db_subnet_group" "aurora" {
   name       = "${var.aurora_cluster_name}-subnet-group"
-  subnet_ids = [aws_subnet.private_a.id, aws_subnet.private_b.id, element(concat(aws_subnet.private_c.*.id, [""]), 0)] # Handle cases with fewer than 3 AZs
+  subnet_ids = [aws_subnet.private_a.id, aws_subnet.private_b.id, element(concat(aws_subnet.private_c.*.id, [""]), 0)]
 }
 
 resource "random_password" "db_master_password" {
