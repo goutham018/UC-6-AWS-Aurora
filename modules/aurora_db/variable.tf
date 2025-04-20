@@ -31,6 +31,7 @@ variable "db_engine" {
 variable "db_engine_version" {
   type        = string
   description = "The database engine version"
+  default     = "8.0.mysql_aurora.3.05.2"
 }
 
 variable "db_instance_type" {
@@ -56,6 +57,7 @@ variable "aurora_cluster_name" {
 variable "secrets_manager_secret_name" {
   type        = string
   description = "The name of the secret in AWS Secrets Manager"
+  default     = "aurora-master-credentials-new123"
 }
 
 variable "db_port" {

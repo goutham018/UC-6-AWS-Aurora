@@ -146,11 +146,11 @@ resource "aws_rds_cluster" "aurora" {
   engine_version       = var.db_engine_version
   database_name        = var.database_name
   master_username      = var.db_master_username
-  master_password      = random_password.db_master_password.result # Initial password
+  master_password      = random_password.db_master_password.result # Terraform sets initial password
   vpc_security_group_ids = [aws_security_group.aurora.id]
   db_subnet_group_name = aws_db_subnet_group.aurora.name
   skip_final_snapshot  = true
-  manage_master_user_password = false # Managed by Secrets Manager
+  # manage_master_user_password = false # REMOVE this line
 }
 
 resource "aws_rds_cluster_instance" "instance_1" {

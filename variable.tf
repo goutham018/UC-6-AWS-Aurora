@@ -37,13 +37,13 @@ variable "db_engine" {
 variable "db_engine_version" {
   type        = string
   description = "The database engine version"
-  default     = "5.7.mysql_aurora.2.11"
+  default     = "8.0.mysql_aurora.3.05.2"
 }
 
 variable "db_instance_type" {
   type        = string
   description = "The instance type for Aurora nodes"
-  default     = "db.t3.small"
+  default     = "db.t4g.medium" # Try a compatible instance type
 }
 
 variable "db_master_username" {
@@ -67,7 +67,7 @@ variable "aurora_cluster_name" {
 variable "secrets_manager_secret_name" {
   type        = string
   description = "The name of the secret in AWS Secrets Manager"
-  default     = "aurora-master-credentials"
+  default     = "aurora-master-credentials-v6" # Use a new unique name
 }
 
 variable "db_port" {
