@@ -1,0 +1,103 @@
+name: PR Info
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform action to perform'
+        required: true
+        default: 'none'
+        type: choice
+        options:
+          - destroy
+          - apply
+
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::273354635930:role/github-oidc
+          aws-region: us-east-1
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform fmt
+        run: terraform fmt
+        
+      - name: Lint Terraform Code
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          tflint --init
+          tflint --config .tflint.hcl
+
+      - name: Install Checkov
+        run: pip install checkov
+ 
+      - name: Run Checkov with soft fail
+        run: |
+          pip install checkov
+          checkov --directory . --soft-fail
+
+   
+      - name: Generate Markdown with Terraform Docs
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        uses: terraform-docs/gh-actions@v1.3.0
+        with:
+          output-file: README.md
+          output-method: inject
+          git-push: true
+          config-file: .terraform-docs.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Posting README.md as PR Comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2.9.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          header: "Terraform Documentation "
+          path: "README.md"
+
+      - name: Applying Terraform after PR Merge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Manually Destroy Infrastructure
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+        run: |
+          terraform init
+          terraform destroy -auto-approve
