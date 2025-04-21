@@ -67,7 +67,7 @@ variable "aurora_cluster_name" {
 variable "secrets_manager_secret_name" {
   type        = string
   description = "The name of the secret in AWS Secrets Manager"
-  default     = "aurora-master-credentials-v7" # Use a new unique name
+  default     = "aurora-master-credentials-v8" # Use a new unique name
 }
 
 variable "db_port" {
