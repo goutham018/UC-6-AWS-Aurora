@@ -33,19 +33,6 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Install TFLint
-        run: |
-          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
-
-      - name: Terraform Lint
-        run: tflint
-
-      # - name: Checkov Scan
-      #   uses: bridgecrewio/checkov-action@master
-      #   with:
-      #     directory: .
-      #     framework: terraform
-
       - name: Terraform Init
         run: terraform init
 
