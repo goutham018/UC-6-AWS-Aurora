@@ -15,8 +15,8 @@ provider "aws" {
   region = var.region
 }
 
-module "aurora_db" {
-  source = "./modules/aurora_db"
+module "aurora_db_setup" {
+  source = "./modules/aurora-db"
   project_name                = var.project_name
   region                      = var.region
   vpc_cidr                    = var.vpc_cidr
