@@ -39,10 +39,30 @@ jobs:
       - name: Terraform Plan
         run: terraform plan
 
-      - name: Terraform Apply or Destroy
+      - name: Terraform fmt
+        run: terraform fmt -recursive
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Lint Terraform Code
         run: |
-          if [ "${{ github.event.inputs.action }}" = "destroy" ]; then
-            terraform destroy -auto-approve
-          else
-            terraform apply -auto-approve
-          fi
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          tflint --init
+          tflint --config .tflint.hcl
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Checkov with soft fail
+        run: checkov --directory . --soft-fail
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      # - name: Terraform Apply or Destroy
+      #   run: |
+      #     if [ "${{ github.event.inputs.action }}" = "destroy" ]; then
+      #       terraform destroy -auto-approve
+      #     else
+      #       terraform apply -auto-approve
+      #     fi
